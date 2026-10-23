@@ -22,7 +22,7 @@ uses: actions/checkout@v4
   - name: Install unzip
     run: sudo apt-get update && sudo apt-get install -y unzip
 
-  - name: Extract project
+  - name: Extract Android project
     run: |
       mkdir -p extracted
       unzip -o FFScreenLab-GitHub-Build.zip -d extracted
@@ -32,15 +32,13 @@ uses: actions/checkout@v4
     with:
       gradle-version: '8.10.2'
 
-  - name: Fix JVM targets and build
+  - name: Build APK
     run: |
       PROJECT_FILE=$(find extracted -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit)
       test -n "$PROJECT_FILE" || { echo "Gradle project not found"; exit 1; }
       PROJECT_DIR=$(dirname "$PROJECT_FILE")
       cd "$PROJECT_DIR"
-
-      sed -i 's/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g; s/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g' app/build.gradle.kts
-
+      sed -i 's/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g' app/build.gradle.kts
       gradle assembleDebug --stacktrace
 
   - name: Upload APK
