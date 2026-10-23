@@ -1,3 +1,4 @@
+
 name: Build APK
 
 on:
@@ -28,6 +29,11 @@ jobs:
           mkdir -p extracted
           unzip -o FFScreenLab-GitHub-Build.zip -d extracted
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.10.2'
+
       - name: Build APK
         run: |
           PROJECT_FILE=$(find extracted -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit)
@@ -38,13 +44,7 @@ jobs:
           fi
           PROJECT_DIR=$(dirname "$PROJECT_FILE")
           cd "$PROJECT_DIR"
-          if [ -f gradlew ]; then
-            chmod +x gradlew
-            ./gradlew assembleDebug
-          else
-            echo "Gradle wrapper not found"
-            exit 1
-          fi
+          gradle assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
